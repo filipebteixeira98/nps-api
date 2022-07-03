@@ -1,3 +1,4 @@
+import { resolve } from 'path';
 import { Request, Response } from 'express';
 import { getCustomRepository } from 'typeorm';
 
@@ -36,10 +37,25 @@ class SendMailController {
 
     await surveysUsersRepository.save(surveyUser);
 
+    const templateFilePath = resolve(
+      __dirname,
+      '..',
+      'views',
+      'emails',
+      'npsMail.hbs'
+    );
+
+    const context = {
+      name: userAlreadyExists.name,
+      title: surveyAlreadyExists.title,
+      description: surveyAlreadyExists.description,
+    };
+
     await SendMailService.execute(
       email,
       surveyAlreadyExists.title,
-      surveyAlreadyExists.description
+      context,
+      templateFilePath
     );
 
     return response.json(surveyUser);
